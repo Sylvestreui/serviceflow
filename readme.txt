@@ -19,7 +19,7 @@ ServiceFlow turns any Custom Post Type into a full client service management sys
 * Real-time chat attached to any CPT post
 * Service packs and options management with pricing, delays and descriptions
 * Order workflow: pending → paid → started → completed → revision → accepted
-* Client account page with dashboard, orders, invoices and profile (`[serviceflow_account]` shortcode)
+* Client account page with dashboard, orders, invoices and profile (`[serviceflow_my_account]` shortcode)
 * Admin dashboard with statistics and recent activity
 * In-app notification system
 * Customisable accent colour and chat button position
@@ -101,9 +101,3 @@ No data is transmitted to external services in the free plan without explicit co
 
 = 1.0.0 =
 Initial public release.
-
-= 1.6.2 =
-Adds WP Cron payment automation and email templates. Run the update then visit any admin page once to trigger the DB migration.
-
-= 1.5.0 =
-Major update with Stripe payments, user accounts, invoices and notifications.
