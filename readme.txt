@@ -94,64 +94,13 @@ No data is transmitted to external services in the free plan without explicit co
 
 == Changelog ==
 
-= 1.6.4 =
-* Add: expired Stripe session detection — payment buttons turn grey with "Lien expiré" badge after 24h
-* Add: `sf_payment_success` return URL handler — fallback Stripe API check if webhook not yet received
-* Fix: `[serviceflow_my_account]` shortcode documented correctly in installation instructions (was `[serviceflow_account]`)
-* Fix: TVA always 0 in free plan (tax_rate now premium-gated at all calculation points: display, order storage, chat message)
-* Fix: "Commander via le chat" flickering to Stripe button in free plan (ServiceFlow_Stripe::is_enabled() now checks premium license first)
-* Fix: unread badge persisting after page refresh (lastId now persisted in localStorage per user/post)
-* Fix: manual order total stored as HT instead of TTC (tax_rate applied before create_order call)
-
-= 1.6.3 =
-* Fix: migration backfill for `due_date` on existing payment schedule rows (pre-1.6.2 installs)
-* Fix: options checkboxes deselecting every 5 seconds due to poll calling syncCardState on unchanged state
-* Fix: revision delay input field losing value on each poll cycle
-* Fix: unread message badge not resetting when chat opened (admin hasLoaded edge case)
-* Fix: sidebar sticky position in account dashboard jumping between tabs
-* Add: WP-Cron disabled warning in admin (DISABLE_WP_CRON detection)
-* Add: Sous-total / TVA / Total breakdown in service card
-* Add: payment mode badge displayed below "Choose your pack" title
-* Add: email template live preview modal (admin notifications page)
-* Improve: scrollbar styling — ultra-thin, appears on hover only
-* Improve: empty chat message updated to more engaging copy
-
-= 1.6.2 =
-* Add: automatic payment link sending via WP Cron on due date
-* Add: payment reminder emails N days before due date (configurable)
-* Add: real-time payment button status (turns green on payment confirmation)
-* Add: `[SF_SCHED:id]` marker system linking chat messages to schedule rows
-* Add: `due_date` column on payment schedule table
-* Add: full email template editor for all 5 notification types
-* Fix: Stripe webhook URL — switched from REST API to admin-ajax (resolves 404 on some hosts)
-* Fix: URL regex truncating checkout links in chat messages (token-based replacement)
-* Fix: sidebar scroll capturing page scroll instead of card content
-
-= 1.6.1 =
-* Add: Freemius SDK integration (licensing, trial, upgrade flow)
-* Add: premium feature gating (Stripe, invoices, todos, emails, unlimited services)
-* Add: ServiceFlow_Payments class with full installment/monthly/deposit schedule management
-* Add: todo list per order with auto-complete on order acceptance
-* Add: Elementor Dynamic Tags for service data
-
-= 1.5.0 =
-* Add: Stripe Checkout integration
-* Add: user account page with dashboard, orders, invoices and profile
-* Add: admin dashboard with statistics
-* Add: notification system (in-app + email)
-* Add: invoice PDF generation
-* Improve: mobile responsiveness
-
 = 1.0.0 =
-* Initial release
+* Initial public release
 
 == Upgrade Notice ==
 
-= 1.6.4 =
-Fixes TVA calculation, Stripe button flickering in free plan, and unread badge persistence. Adds expired session detection. Safe to update — no DB migration required.
-
-= 1.6.3 =
-Minor fixes and UX improvements. Safe to update — includes an automatic DB migration for existing payment schedules.
+= 1.0.0 =
+Initial public release.
 
 = 1.6.2 =
 Adds WP Cron payment automation and email templates. Run the update then visit any admin page once to trigger the DB migration.
