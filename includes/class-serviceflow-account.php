@@ -32,7 +32,7 @@ class ServiceFlow_Account {
         $first_name   = sanitize_text_field( wp_unslash( $_POST['first_name'] ?? '' ) );
         $last_name    = sanitize_text_field( wp_unslash( $_POST['last_name'] ?? '' ) );
         $user_email   = sanitize_email( wp_unslash( $_POST['user_email'] ?? '' ) );
-        $new_password = wp_unslash( $_POST['new_password'] ?? '' );
+        $new_password = wp_unslash( $_POST['new_password'] ?? '' ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Passwords must not be sanitized; special characters must be preserved.
 
         if ( ! empty( $display_name ) ) {
             $data['display_name'] = $display_name;
@@ -138,6 +138,7 @@ class ServiceFlow_Account {
 
     private static function get_account_page_url(): string {
         global $wpdb;
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- One-time lookup of page by shortcode; result is used immediately.
         $page_id = $wpdb->get_var(
             "SELECT ID FROM {$wpdb->posts}
              WHERE post_type = 'page'
@@ -354,7 +355,7 @@ class ServiceFlow_Account {
                         <?php echo $orders_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML generated internally by render_orders_section(). ?>
                     </div>
                     <div id="serviceflow-ma-panel-factures" class="serviceflow-ma-panel" style="display:none">
-                        <?php echo self::render_invoices_section( $color ); ?>
+                        <?php echo self::render_invoices_section( $color ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Output from internal static method. ?>
                     </div>
                     <div id="serviceflow-ma-panel-profil" class="serviceflow-ma-panel" style="display:none">
                         <?php echo $profile_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML generated internally by render_profile_section(). ?>
@@ -491,7 +492,7 @@ class ServiceFlow_Account {
         <div style="background:#fff !important;border:1px solid #e0e0e0 !important;border-radius:12px !important;padding:24px !important;margin:0 0 20px 0 !important;display:flex !important;align-items:center !important;gap:16px !important">
             <img src="<?php echo esc_url( $avatar_url ); ?>" style="width:56px !important;height:56px !important;border-radius:50% !important;object-fit:cover !important;border:2px solid <?php echo esc_attr( $esc_color ); ?> !important;flex-shrink:0 !important" />
             <div>
-                <div style="font-size:18px !important;font-weight:700 !important;color:#222 !important;margin:0 0 4px 0 !important"><?php printf( esc_html__( 'Bonjour, %s', 'serviceflow' ), esc_html( $user->display_name ) ); ?></div>
+                <div style="font-size:18px !important;font-weight:700 !important;color:#222 !important;margin:0 0 4px 0 !important"><?php /* translators: %s: user display name */ printf( esc_html__( 'Bonjour, %s', 'serviceflow' ), esc_html( $user->display_name ) ); ?></div>
                 <div style="font-size:13px !important;color:#888 !important"><?php echo esc_html( $user->user_email ); ?> &middot; <?php esc_html_e( 'Membre depuis', 'serviceflow' ); ?> <?php echo esc_html( date_i18n( 'd/m/Y', strtotime( $user->user_registered ) ) ); ?></div>
             </div>
         </div>
@@ -573,9 +574,10 @@ class ServiceFlow_Account {
         <div style="margin:16px 0 0 0 !important;padding:12px 16px !important;background:#fef3c7 !important;border:1px solid #fcd34d !important;border-radius:8px !important;display:flex !important;align-items:center !important;gap:10px !important;font-size:13px !important;color:#92400e !important">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#92400e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0 !important"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
             <span>
-                <?php printf(
+                <?php /* translators: %d: number of unpaid invoices */
+                printf(
                     esc_html( _n( 'Vous avez %d facture en attente de paiement.', 'Vous avez %d factures en attente de paiement.', $unpaid_invoices, 'serviceflow' ) ),
-                    $unpaid_invoices
+                    $unpaid_invoices // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Integer value passed to printf %d format.
                 ); ?>
                 <button type="button" class="serviceflow-dash-goto" data-goto="factures" style="background:none !important;border:none !important;cursor:pointer !important;font-weight:700 !important;color:#92400e !important;text-decoration:underline !important;font-family:inherit !important;font-size:inherit !important;padding:0 !important"><?php esc_html_e( 'Voir les factures', 'serviceflow' ); ?></button>
             </span>
@@ -616,7 +618,7 @@ class ServiceFlow_Account {
         <div style="display:flex !important;gap:8px !important;margin:0 0 20px 0 !important;flex-wrap:wrap !important">
             <?php $first = true; foreach ( $filter_items as $key => $label ) : ?>
             <button class="serviceflow-ma-filter" data-status="<?php echo esc_attr( $key ); ?>"
-                    style="padding:6px 14px !important;border-radius:20px !important;border:1px solid <?php echo $first ? $esc_color : '#e0e0e0'; ?> !important;background:<?php echo $first ? $esc_color : '#fff'; ?> !important;color:<?php echo $first ? '#fff' : '#666'; ?> !important;font-size:12px !important;font-weight:600 !important;cursor:pointer !important;font-family:inherit !important;display:inline-flex !important;align-items:center !important;gap:5px !important">
+                    style="padding:6px 14px !important;border-radius:20px !important;border:1px solid <?php echo $first ? $esc_color : '#e0e0e0'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Value was passed through esc_attr() at assignment. ?> !important;background:<?php echo $first ? $esc_color : '#fff'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Value was passed through esc_attr() at assignment. ?> !important;color:<?php echo $first ? '#fff' : '#666'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Value was passed through esc_attr() at assignment. ?> !important;font-size:12px !important;font-weight:600 !important;cursor:pointer !important;font-family:inherit !important;display:inline-flex !important;align-items:center !important;gap:5px !important">
                 <?php echo esc_html( $label ); ?>
                 <span style="background:<?php echo $first ? 'rgba(255,255,255,0.3)' : '#f0f0f0'; ?> !important;padding:1px 7px !important;border-radius:10px !important;font-size:11px !important"><?php echo esc_html( $counts[ $key ] ); ?></span>
             </button>
@@ -699,7 +701,7 @@ class ServiceFlow_Account {
 
                 <!-- Échéancier de paiement -->
                 <?php if ( class_exists( 'ServiceFlow_Payments' ) && isset( $o->payment_mode ) && $o->payment_mode !== 'single' ) :
-                    echo ServiceFlow_Payments::render_schedule_block( (int) $o->id, $color, current_user_can( 'manage_options' ) );
+                    echo ServiceFlow_Payments::render_schedule_block( (int) $o->id, $color, current_user_can( 'manage_options' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Output is internally generated HTML from ServiceFlow_Payments::render_schedule_block().
                 endif; ?>
 
                 <!-- Lien chat -->

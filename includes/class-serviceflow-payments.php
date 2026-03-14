@@ -34,7 +34,7 @@ class ServiceFlow_Payments {
         $table        = self::table_name();
         $placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
         $results      = $wpdb->get_col(
-            $wpdb->prepare( "SELECT id FROM {$table} WHERE id IN ({$placeholders}) AND status = 'paid'", ...$ids ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is a plugin-defined constant; $placeholders is a sanitized list of %d tokens.
+            $wpdb->prepare( "SELECT id FROM {$table} WHERE id IN ({$placeholders}) AND status = 'paid'", ...$ids ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.UnfinishedPrepare -- $table is a plugin-defined constant; $placeholders contains %d tokens built from count($ids).
         );
         return array_map( 'intval', $results ?: [] );
     }

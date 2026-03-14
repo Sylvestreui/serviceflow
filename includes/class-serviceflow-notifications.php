@@ -652,7 +652,7 @@ class ServiceFlow_Notifications {
     private static function create_notification( int $user_id, string $type, int $ref_id, int $post_id, int $sender_id, array $data ): int|false {
         global $wpdb;
 
-        $result = $wpdb->insert(
+        $result = $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             self::table_name(),
             [
                 'user_id'    => $user_id,
@@ -688,10 +688,12 @@ class ServiceFlow_Notifications {
         // Récupérer un extrait du message
         global $wpdb;
         $msg_table = ServiceFlow_DB::table_name();
-        $msg_row   = $wpdb->get_row( $wpdb->prepare(
-            "SELECT message FROM {$msg_table} WHERE id = %d",
-            $message_id
-        ) );
+        $msg_row   = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            $wpdb->prepare(
+                "SELECT message FROM {$msg_table} WHERE id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $msg_table is a plugin-defined constant.
+                $message_id
+            )
+        );
         $excerpt = $msg_row ? mb_strimwidth( $msg_row->message, 0, 80, '…' ) : '';
 
         $data = [
@@ -984,6 +986,7 @@ class ServiceFlow_Notifications {
             // Body
             . '<div style="background:#fff;padding:24px;border-left:1px solid #e0e0e0;border-right:1px solid #e0e0e0">'
             . '<p style="margin:0 0 20px 0;font-size:15px;color:#333">'
+            /* translators: %s: recipient display name */
             . sprintf( esc_html__( 'Bonjour %s,', 'serviceflow' ), esc_html( $name ) )
             . '</p>'
             . $content_html
@@ -1128,10 +1131,12 @@ class ServiceFlow_Notifications {
 
         global $wpdb;
         $table = self::table_name();
-        $count = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$table} WHERE user_id = %d AND is_read = 0",
-            get_current_user_id()
-        ) );
+        $count = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            $wpdb->prepare(
+                "SELECT COUNT(*) FROM {$table} WHERE user_id = %d AND is_read = 0", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is a plugin-defined constant.
+                get_current_user_id()
+            )
+        );
 
         wp_send_json_success( [ 'count' => $count ] );
     }
@@ -1145,10 +1150,12 @@ class ServiceFlow_Notifications {
 
         global $wpdb;
         $table = self::table_name();
-        $rows  = $wpdb->get_results( $wpdb->prepare(
-            "SELECT * FROM {$table} WHERE user_id = %d ORDER BY created_at DESC LIMIT 15",
-            get_current_user_id()
-        ) );
+        $rows  = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            $wpdb->prepare(
+                "SELECT * FROM {$table} WHERE user_id = %d ORDER BY created_at DESC LIMIT 15", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is a plugin-defined constant.
+                get_current_user_id()
+            )
+        );
 
         $notifications = [];
         foreach ( $rows as $row ) {
@@ -1175,7 +1182,7 @@ class ServiceFlow_Notifications {
 
         global $wpdb;
         $table = self::table_name();
-        $wpdb->update(
+        $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $table,
             [ 'is_read' => 1 ],
             [ 'user_id' => get_current_user_id(), 'is_read' => 0 ]
@@ -1227,14 +1234,17 @@ class ServiceFlow_Notifications {
         }
         if ( $diff < 3600 ) {
             $m = (int) floor( $diff / 60 );
+            /* translators: %d: number of minutes ago */
             return sprintf( __( 'Il y a %d min', 'serviceflow' ), $m );
         }
         if ( $diff < 86400 ) {
             $h = (int) floor( $diff / 3600 );
+            /* translators: %d: number of hours ago */
             return sprintf( __( 'Il y a %d h', 'serviceflow' ), $h );
         }
         if ( $diff < 604800 ) {
             $d = (int) floor( $diff / 86400 );
+            /* translators: %d: number of days ago */
             return sprintf( __( 'Il y a %d j', 'serviceflow' ), $d );
         }
 

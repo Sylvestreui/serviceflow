@@ -179,6 +179,7 @@ class ServiceFlow_Invoices {
         $table    = self::invoices_table_name();
 
         // Chercher uniquement les factures qui commencent par le préfixe actuel
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table names are plugin-defined constants.
         $last = $wpdb->get_var( $wpdb->prepare(
             "SELECT invoice_number FROM {$table} WHERE invoice_number LIKE %s ORDER BY id DESC LIMIT 1",
             $wpdb->esc_like( $prefix ) . '%'
@@ -221,6 +222,7 @@ class ServiceFlow_Invoices {
 
         if ( $ext_client_id ) {
             $table  = self::clients_table_name();
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table names are plugin-defined constants.
             $client = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table} WHERE id = %d", $ext_client_id ) );
             if ( $client ) {
                 $client->is_wp = false;
@@ -241,6 +243,7 @@ class ServiceFlow_Invoices {
         }
 
         $limit = absint( $limit );
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table names are plugin-defined constants; queries use no user input.
         return $wpdb->get_results( "SELECT * FROM {$table} {$where} ORDER BY created_at DESC LIMIT {$limit}" );
     }
 
@@ -248,6 +251,7 @@ class ServiceFlow_Invoices {
         global $wpdb;
 
         $table = self::invoices_table_name();
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table names are plugin-defined constants.
         return $wpdb->get_results( $wpdb->prepare(
             "SELECT * FROM {$table} WHERE client_id = %d AND status IN ('validated','paid') ORDER BY created_at DESC",
             $client_id
@@ -258,6 +262,7 @@ class ServiceFlow_Invoices {
         global $wpdb;
 
         $table = self::invoices_table_name();
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table names are plugin-defined constants.
         return $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table} WHERE id = %d", $invoice_id ) );
     }
 
@@ -265,6 +270,7 @@ class ServiceFlow_Invoices {
         global $wpdb;
 
         $table  = self::invoices_table_name();
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table names are plugin-defined constants; queries use no user input.
         $rows   = $wpdb->get_results( "SELECT status, COUNT(*) AS cnt FROM {$table} GROUP BY status" );
         $counts = [ 'all' => 0 ];
 
@@ -283,6 +289,7 @@ class ServiceFlow_Invoices {
     private static function get_all_ext_clients(): array {
         global $wpdb;
         $table = self::clients_table_name();
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table names are plugin-defined constants; queries use no user input.
         return $wpdb->get_results( "SELECT * FROM {$table} ORDER BY name ASC" );
     }
 
@@ -362,6 +369,7 @@ class ServiceFlow_Invoices {
 
         // Vérifier qu'aucune facture non-annulée n'existe déjà
         $table  = self::invoices_table_name();
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table names are plugin-defined constants.
         $exists = $wpdb->get_var( $wpdb->prepare(
             "SELECT id FROM {$table} WHERE order_id = %d AND status != %s LIMIT 1",
             $order_id, self::STATUS_CANCELLED
@@ -417,6 +425,7 @@ class ServiceFlow_Invoices {
             ? self::STATUS_PAID
             : self::STATUS_PENDING;
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
         $inserted = $wpdb->insert( $table, [
             'invoice_number' => self::generate_invoice_number(),
             'order_id'       => $order_id,
@@ -459,6 +468,7 @@ class ServiceFlow_Invoices {
 
         // Idempotence : une seule facture par ligne d'échéancier
         if ( $schedule_id ) {
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table names are plugin-defined constants.
             $exists = $wpdb->get_var( $wpdb->prepare(
                 "SELECT id FROM {$table} WHERE schedule_id = %d AND status != %s LIMIT 1",
                 $schedule_id, self::STATUS_CANCELLED
@@ -479,7 +489,9 @@ class ServiceFlow_Invoices {
         $service_name = get_the_title( (int) $order->post_id ) ?: 'Service';
 
         $label = match ( $invoice_type ) {
+            /* translators: %s: service name */
             'acompte'    => sprintf( __( 'Acompte — %s', 'serviceflow' ), $service_name ),
+            /* translators: %s: service name */
             'solde'      => sprintf( __( 'Solde — %s', 'serviceflow' ), $service_name ),
             /* translators: %1$d: installment number, %2$s: service name */
             'mensualite' => sprintf( __( 'Mensualité %1$d — %2$s', 'serviceflow' ), $installment_no, $service_name ),
@@ -502,6 +514,7 @@ class ServiceFlow_Invoices {
             'total'       => $subtotal,
         ] ];
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
         $inserted = $wpdb->insert( $table, [
             'invoice_number' => self::generate_invoice_number(),
             'order_id'       => $order_id,
@@ -541,6 +554,7 @@ class ServiceFlow_Invoices {
         }
 
         $table = self::invoices_table_name();
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
         $wpdb->update( $table, [
             'status'       => self::STATUS_VALIDATED,
             'validated_at' => current_time( 'mysql' ),
@@ -563,6 +577,7 @@ class ServiceFlow_Invoices {
         }
 
         $table = self::invoices_table_name();
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
         $wpdb->update( $table, [
             'status'     => self::STATUS_PAID,
             'paid_at'    => current_time( 'mysql' ),
@@ -585,6 +600,7 @@ class ServiceFlow_Invoices {
         }
 
         $table = self::invoices_table_name();
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
         $wpdb->update( $table, [
             'status'     => self::STATUS_CANCELLED,
             'updated_at' => current_time( 'mysql' ),
@@ -605,16 +621,16 @@ class ServiceFlow_Invoices {
 
         global $wpdb;
 
-        $client_type   = sanitize_text_field( $_POST['client_type'] ?? 'wp' );
+        $client_type   = sanitize_text_field( wp_unslash( $_POST['client_type'] ?? 'wp' ) );
         $client_id     = absint( $_POST['client_id'] ?? 0 );
         $ext_client_id = absint( $_POST['ext_client_id'] ?? 0 );
         $order_id      = absint( $_POST['order_id'] ?? 0 );
         $tax_rate      = floatval( $_POST['tax_rate'] ?? 20 );
-        $notes         = sanitize_textarea_field( $_POST['notes'] ?? '' );
-        $save_status   = sanitize_text_field( $_POST['save_status'] ?? self::STATUS_DRAFT );
+        $notes         = sanitize_textarea_field( wp_unslash( $_POST['notes'] ?? '' ) );
+        $save_status   = sanitize_text_field( wp_unslash( $_POST['save_status'] ?? self::STATUS_DRAFT ) );
 
         // Construire les items
-        $raw_items = $_POST['items'] ?? [];
+        $raw_items = wp_unslash( $_POST['items'] ?? [] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Array items are sanitized individually in the foreach loop below.
         $items     = [];
         if ( is_array( $raw_items ) ) {
             foreach ( $raw_items as $item ) {
@@ -673,6 +689,7 @@ class ServiceFlow_Invoices {
             $data['validated_at'] = current_time( 'mysql' );
         }
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
         $inserted = $wpdb->insert( self::invoices_table_name(), $data );
 
         if ( ! $inserted ) {
@@ -704,14 +721,14 @@ class ServiceFlow_Invoices {
             wp_send_json_error( [ 'message' => __( 'Seuls les brouillons peuvent être modifiés.', 'serviceflow' ) ], 400 );
         }
 
-        $client_type   = sanitize_text_field( $_POST['client_type'] ?? 'wp' );
+        $client_type   = sanitize_text_field( wp_unslash( $_POST['client_type'] ?? 'wp' ) );
         $client_id     = absint( $_POST['client_id'] ?? 0 );
         $ext_client_id = absint( $_POST['ext_client_id'] ?? 0 );
         $tax_rate      = floatval( $_POST['tax_rate'] ?? 20 );
-        $notes         = sanitize_textarea_field( $_POST['notes'] ?? '' );
-        $save_status   = sanitize_text_field( $_POST['save_status'] ?? self::STATUS_DRAFT );
+        $notes         = sanitize_textarea_field( wp_unslash( $_POST['notes'] ?? '' ) );
+        $save_status   = sanitize_text_field( wp_unslash( $_POST['save_status'] ?? self::STATUS_DRAFT ) );
 
-        $raw_items = $_POST['items'] ?? [];
+        $raw_items = wp_unslash( $_POST['items'] ?? [] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Array items are sanitized individually in the foreach loop below.
         $items     = [];
         if ( is_array( $raw_items ) ) {
             foreach ( $raw_items as $item ) {
@@ -767,6 +784,7 @@ class ServiceFlow_Invoices {
             $data['validated_at'] = current_time( 'mysql' );
         }
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
         $updated = $wpdb->update( self::invoices_table_name(), $data, [ 'id' => $invoice_id ] );
 
         if ( $updated === false ) {
@@ -789,7 +807,7 @@ class ServiceFlow_Invoices {
         global $wpdb;
 
         $invoice_id = absint( $_POST['invoice_id'] ?? 0 );
-        $new_status = sanitize_text_field( $_POST['new_status'] ?? '' );
+        $new_status = sanitize_text_field( wp_unslash( $_POST['new_status'] ?? '' ) );
 
         if ( ! $invoice_id ) {
             wp_send_json_error( [ 'message' => __( 'Facture introuvable.', 'serviceflow' ) ], 400 );
@@ -826,6 +844,7 @@ class ServiceFlow_Invoices {
             $data['paid_at'] = current_time( 'mysql' );
         }
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
         $wpdb->update( self::invoices_table_name(), $data, [ 'id' => $invoice_id ] );
 
         wp_send_json_success();
@@ -844,7 +863,7 @@ class ServiceFlow_Invoices {
         global $wpdb;
 
         $id   = absint( $_POST['client_id'] ?? 0 );
-        $name = sanitize_text_field( $_POST['name'] ?? '' );
+        $name = sanitize_text_field( wp_unslash( $_POST['name'] ?? '' ) );
 
         if ( empty( $name ) ) {
             wp_send_json_error( [ 'message' => __( 'Le nom est obligatoire.', 'serviceflow' ) ], 400 );
@@ -852,25 +871,27 @@ class ServiceFlow_Invoices {
 
         $data = [
             'name'        => $name,
-            'email'       => sanitize_email( $_POST['email'] ?? '' ),
-            'company'     => sanitize_text_field( $_POST['company'] ?? '' ),
-            'address'     => sanitize_textarea_field( $_POST['address'] ?? '' ),
-            'city'        => sanitize_text_field( $_POST['city'] ?? '' ),
-            'postal_code' => sanitize_text_field( $_POST['postal_code'] ?? '' ),
-            'country'     => sanitize_text_field( $_POST['country'] ?? 'France' ),
-            'phone'       => sanitize_text_field( $_POST['phone'] ?? '' ),
-            'vat_number'  => sanitize_text_field( $_POST['vat_number'] ?? '' ),
-            'siret'       => sanitize_text_field( $_POST['siret'] ?? '' ),
-            'notes'       => sanitize_textarea_field( $_POST['notes'] ?? '' ),
+            'email'       => sanitize_email( wp_unslash( $_POST['email'] ?? '' ) ),
+            'company'     => sanitize_text_field( wp_unslash( $_POST['company'] ?? '' ) ),
+            'address'     => sanitize_textarea_field( wp_unslash( $_POST['address'] ?? '' ) ),
+            'city'        => sanitize_text_field( wp_unslash( $_POST['city'] ?? '' ) ),
+            'postal_code' => sanitize_text_field( wp_unslash( $_POST['postal_code'] ?? '' ) ),
+            'country'     => sanitize_text_field( wp_unslash( $_POST['country'] ?? 'France' ) ),
+            'phone'       => sanitize_text_field( wp_unslash( $_POST['phone'] ?? '' ) ),
+            'vat_number'  => sanitize_text_field( wp_unslash( $_POST['vat_number'] ?? '' ) ),
+            'siret'       => sanitize_text_field( wp_unslash( $_POST['siret'] ?? '' ) ),
+            'notes'       => sanitize_textarea_field( wp_unslash( $_POST['notes'] ?? '' ) ),
         ];
 
         $table = self::clients_table_name();
 
         if ( $id ) {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
             $wpdb->update( $table, $data, [ 'id' => $id ] );
             wp_send_json_success( [ 'client_id' => $id ] );
         } else {
             $data['created_at'] = current_time( 'mysql' );
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
             $wpdb->insert( $table, $data );
             wp_send_json_success( [ 'client_id' => (int) $wpdb->insert_id ] );
         }
@@ -888,6 +909,7 @@ class ServiceFlow_Invoices {
             wp_send_json_error( [ 'message' => __( 'ID manquant.', 'serviceflow' ) ], 400 );
         }
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
         $wpdb->delete( self::clients_table_name(), [ 'id' => $id ] );
         wp_send_json_success();
     }
@@ -903,22 +925,22 @@ class ServiceFlow_Invoices {
         }
 
         $settings = [
-            'company_name'    => sanitize_text_field( $_POST['company_name'] ?? '' ),
-            'company_address' => sanitize_textarea_field( $_POST['company_address'] ?? '' ),
-            'company_city'    => sanitize_text_field( $_POST['company_city'] ?? '' ),
-            'company_postal'  => sanitize_text_field( $_POST['company_postal'] ?? '' ),
-            'company_country' => sanitize_text_field( $_POST['company_country'] ?? 'France' ),
-            'company_phone'   => sanitize_text_field( $_POST['company_phone'] ?? '' ),
-            'company_email'   => sanitize_email( $_POST['company_email'] ?? '' ),
-            'company_logo'    => esc_url_raw( $_POST['company_logo'] ?? '' ),
-            'vat_number'      => sanitize_text_field( $_POST['vat_number'] ?? '' ),
-            'siret_ifu'       => sanitize_text_field( $_POST['siret_ifu'] ?? '' ),
-            'siret_label'     => sanitize_text_field( $_POST['siret_label'] ?? 'SIRET/IFU' ),
-            'invoice_prefix'  => sanitize_text_field( $_POST['invoice_prefix'] ?? 'FACT-' ),
+            'company_name'    => sanitize_text_field( wp_unslash( $_POST['company_name'] ?? '' ) ),
+            'company_address' => sanitize_textarea_field( wp_unslash( $_POST['company_address'] ?? '' ) ),
+            'company_city'    => sanitize_text_field( wp_unslash( $_POST['company_city'] ?? '' ) ),
+            'company_postal'  => sanitize_text_field( wp_unslash( $_POST['company_postal'] ?? '' ) ),
+            'company_country' => sanitize_text_field( wp_unslash( $_POST['company_country'] ?? 'France' ) ),
+            'company_phone'   => sanitize_text_field( wp_unslash( $_POST['company_phone'] ?? '' ) ),
+            'company_email'   => sanitize_email( wp_unslash( $_POST['company_email'] ?? '' ) ),
+            'company_logo'    => esc_url_raw( wp_unslash( $_POST['company_logo'] ?? '' ) ),
+            'vat_number'      => sanitize_text_field( wp_unslash( $_POST['vat_number'] ?? '' ) ),
+            'siret_ifu'       => sanitize_text_field( wp_unslash( $_POST['siret_ifu'] ?? '' ) ),
+            'siret_label'     => sanitize_text_field( wp_unslash( $_POST['siret_label'] ?? 'SIRET/IFU' ) ),
+            'invoice_prefix'  => sanitize_text_field( wp_unslash( $_POST['invoice_prefix'] ?? 'FACT-' ) ),
             'tax_rate'        => floatval( $_POST['tax_rate'] ?? 20 ),
-            'tax_notice'      => sanitize_textarea_field( $_POST['tax_notice'] ?? '' ),
-            'payment_terms'   => sanitize_textarea_field( $_POST['payment_terms'] ?? '' ),
-            'footer_text'     => sanitize_textarea_field( $_POST['footer_text'] ?? '' ),
+            'tax_notice'      => sanitize_textarea_field( wp_unslash( $_POST['tax_notice'] ?? '' ) ),
+            'payment_terms'   => sanitize_textarea_field( wp_unslash( $_POST['payment_terms'] ?? '' ) ),
+            'footer_text'     => sanitize_textarea_field( wp_unslash( $_POST['footer_text'] ?? '' ) ),
         ];
 
         update_option( 'serviceflow_invoice_settings', $settings );
@@ -931,27 +953,27 @@ class ServiceFlow_Invoices {
 
     public static function ajax_client_view_invoice(): void {
         if ( ! is_user_logged_in() ) {
-            wp_die( __( 'Vous devez être connecté.', 'serviceflow' ) );
+            wp_die( esc_html__( 'Vous devez être connecté.', 'serviceflow' ) );
         }
 
         $invoice_id = absint( $_GET['invoice_id'] ?? 0 ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only view; ownership verified below.
         if ( ! $invoice_id ) {
-            wp_die( __( 'Facture introuvable.', 'serviceflow' ) );
+            wp_die( esc_html__( 'Facture introuvable.', 'serviceflow' ) );
         }
 
         $invoice = self::get_invoice( $invoice_id );
         if ( ! $invoice ) {
-            wp_die( __( 'Facture introuvable.', 'serviceflow' ) );
+            wp_die( esc_html__( 'Facture introuvable.', 'serviceflow' ) );
         }
 
         // Vérifier que la facture appartient à l'utilisateur
         if ( (int) $invoice->client_id !== get_current_user_id() ) {
-            wp_die( __( 'Accès non autorisé.', 'serviceflow' ) );
+            wp_die( esc_html__( 'Accès non autorisé.', 'serviceflow' ) );
         }
 
         // Seules validated / paid visibles
         if ( ! in_array( $invoice->status, [ self::STATUS_VALIDATED, self::STATUS_PAID ], true ) ) {
-            wp_die( __( 'Cette facture n\'est pas encore disponible.', 'serviceflow' ) );
+            wp_die( esc_html__( 'Cette facture n\'est pas encore disponible.', 'serviceflow' ) );
         }
 
         self::render_invoice_html( $invoice, false );
@@ -1447,7 +1469,7 @@ class ServiceFlow_Invoices {
             <h1 style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
                 <span class="dashicons dashicons-media-text" style="font-size:28px;width:28px;height:28px;color:<?php echo esc_attr( $color ); ?>"></span>
                 <?php esc_html_e( 'ServiceFlow — Factures', 'serviceflow' ); ?>
-                <a href="<?php echo admin_url( 'admin.php?page=serviceflow-invoice-new' ); ?>" class="page-title-action"><?php esc_html_e( 'Nouvelle facture', 'serviceflow' ); ?></a>
+                <a href="<?php echo esc_url( admin_url( 'admin.php?page=serviceflow-invoice-new' ) ); ?>" class="page-title-action"><?php esc_html_e( 'Nouvelle facture', 'serviceflow' ); ?></a>
             </h1>
 
             <style>
@@ -1696,7 +1718,7 @@ class ServiceFlow_Invoices {
                                 <option value="<?php echo (int) $ec->id; ?>"><?php echo esc_html( $ec->name . ( $ec->company ? ' — ' . $ec->company : '' ) ); ?></option>
                             <?php endforeach; ?>
                         </select>
-                        <a href="<?php echo admin_url( 'admin.php?page=serviceflow-clients' ); ?>" style="font-size:12px"><?php esc_html_e( 'Gérer les clients externes', 'serviceflow' ); ?></a>
+                        <a href="<?php echo esc_url( admin_url( 'admin.php?page=serviceflow-clients' ) ); ?>" style="font-size:12px"><?php esc_html_e( 'Gérer les clients externes', 'serviceflow' ); ?></a>
                     </div>
                 </div>
 
@@ -1835,7 +1857,7 @@ class ServiceFlow_Invoices {
                         .then(function(res){
                             btn.disabled = false;
                             if(res.success){
-                                window.location.href = '<?php echo admin_url( 'admin.php?page=serviceflow-invoices' ); ?>';
+                                window.location.href = '<?php echo esc_url( admin_url( 'admin.php?page=serviceflow-invoices' ) ); ?>';
                             } else {
                                 alert(res.data && res.data.message ? res.data.message : 'Erreur');
                             }
@@ -1876,7 +1898,9 @@ class ServiceFlow_Invoices {
         <div class="wrap serviceflow-dashboard">
             <h1 style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
                 <span class="dashicons dashicons-edit" style="font-size:28px;width:28px;height:28px;color:<?php echo esc_attr( $color ); ?>"></span>
-                <?php printf( esc_html__( 'Modifier — %s', 'serviceflow' ), esc_html( $invoice->invoice_number ) ); ?>
+                <?php
+                /* translators: %s: invoice number */
+                printf( esc_html__( 'Modifier — %s', 'serviceflow' ), esc_html( $invoice->invoice_number ) ); ?>
             </h1>
 
             <style>
@@ -1976,7 +2000,7 @@ class ServiceFlow_Invoices {
                 <!-- Actions -->
                 <button type="button" class="button serviceflow-newinv-save" data-status="draft" style="margin-right:8px"><?php esc_html_e( 'Enregistrer en brouillon', 'serviceflow' ); ?></button>
                 <button type="button" class="button button-primary serviceflow-newinv-save" data-status="validated" style="background:<?php echo esc_attr( $color ); ?>;border-color:<?php echo esc_attr( $color ); ?>"><?php esc_html_e( 'Enregistrer et valider', 'serviceflow' ); ?></button>
-                <a href="<?php echo admin_url( 'admin.php?page=serviceflow-invoices' ); ?>" style="padding:8px 20px;font-size:13px;text-decoration:none;color:#555">&larr; <?php esc_html_e( 'Retour', 'serviceflow' ); ?></a>
+                <a href="<?php echo esc_url( admin_url( 'admin.php?page=serviceflow-invoices' ) ); ?>" style="padding:8px 20px;font-size:13px;text-decoration:none;color:#555">&larr; <?php esc_html_e( 'Retour', 'serviceflow' ); ?></a>
             </div>
 
             <script>
@@ -2061,7 +2085,7 @@ class ServiceFlow_Invoices {
                         .then(function(res){
                             btn.disabled = false;
                             if(res.success){
-                                window.location.href = '<?php echo admin_url( 'admin.php?page=serviceflow-invoices' ); ?>';
+                                window.location.href = '<?php echo esc_url( admin_url( 'admin.php?page=serviceflow-invoices' ) ); ?>';
                             } else {
                                 alert(res.data && res.data.message ? res.data.message : 'Erreur');
                             }
@@ -2184,6 +2208,7 @@ class ServiceFlow_Invoices {
                                 ? ServiceFlow_Payments::get_row( (int) $invoice->schedule_id )
                                 : null;
                             $n = $sched_row ? (int) $sched_row->installment_no : 0;
+                            /* translators: %d: installment number */
                             echo esc_html( sprintf( __( 'Facture — Mensualité %d', 'serviceflow' ), $n ) );
                         } else {
                             esc_html_e( 'Facture', 'serviceflow' );
@@ -2315,7 +2340,7 @@ class ServiceFlow_Invoices {
                         <?php esc_html_e( 'Annuler', 'serviceflow' ); ?>
                     </button>
                 <?php endif; ?>
-                <a href="<?php echo admin_url( 'admin.php?page=serviceflow-invoices' ); ?>" style="padding:8px 20px;font-size:13px;text-decoration:none;color:#555">&larr; <?php esc_html_e( 'Retour à la liste', 'serviceflow' ); ?></a>
+                <a href="<?php echo esc_url( admin_url( 'admin.php?page=serviceflow-invoices' ) ); ?>" style="padding:8px 20px;font-size:13px;text-decoration:none;color:#555">&larr; <?php esc_html_e( 'Retour à la liste', 'serviceflow' ); ?></a>
             <?php endif; ?>
         </div>
 

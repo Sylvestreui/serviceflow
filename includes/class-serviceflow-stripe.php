@@ -177,9 +177,10 @@ class ServiceFlow_Stripe {
                             <?php esc_html_e( 'Comment configurer le webhook dans Stripe', 'serviceflow' ); ?>
                         </div>
                         <ol style="margin:0;padding:0 0 0 20px;font-size:13px;color:#475569;line-height:2">
-                            <li><?php printf(
+                            <li><?php /* translators: %s: HTML link to Stripe Dashboard */
+                            printf( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Translated string contains an intentional HTML link; link attributes are escaped individually.
                                 __( 'Allez dans votre %s', 'serviceflow' ),
-                                '<a href="https://dashboard.stripe.com/webhooks" target="_blank" rel="noopener" style="color:' . $color . ';font-weight:600">Stripe Dashboard &rarr; Developers &rarr; Webhooks</a>'
+                                '<a href="https://dashboard.stripe.com/webhooks" target="_blank" rel="noopener" style="color:' . esc_attr( $color ) . ';font-weight:600">Stripe Dashboard &rarr; Developers &rarr; Webhooks</a>'
                             ); ?></li>
                             <li><?php esc_html_e( 'Cliquez sur "Ajouter un endpoint" (ou "Add endpoint")', 'serviceflow' ); ?></li>
                             <li><?php esc_html_e( 'Collez l\'URL du webhook ci-dessus dans le champ "Endpoint URL"', 'serviceflow' ); ?></li>
@@ -347,8 +348,8 @@ class ServiceFlow_Stripe {
         // Line items : 1 ligne unique pour l'upfront (évite les arrondis multiples)
         $service_name  = get_the_title( $post_id ) ?: 'ServiceFlow';
         $upfront_label = match ( $payment_mode ) {
-            'deposit'      => sprintf( __( '%s — Acompte 50%%', 'serviceflow' ), $service_name ),
-            'installments' => sprintf( __( '%s — Premier versement 40%%', 'serviceflow' ), $service_name ),
+            'deposit'      => sprintf( __( '%s — Acompte 50%%', 'serviceflow' ), $service_name ), // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment
+            'installments' => sprintf( __( '%s — Premier versement 40%%', 'serviceflow' ), $service_name ), // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment
             /* translators: %1$s: service name, %2$d: total number of installments */
             'monthly'      => sprintf( __( '%1$s — Mois 1 / %2$d', 'serviceflow' ), $service_name, $installments_count ),
             default        => $service_name,
@@ -558,11 +559,15 @@ class ServiceFlow_Stripe {
         }
 
         global $wpdb;
-        $wpdb->update( ServiceFlow_Payments::table_name(), [
-            'status'            => 'paid',
-            'stripe_session_id' => $session->id,
-            'paid_at'           => current_time( 'mysql' ),
-        ], [ 'id' => $schedule_id ] );
+        $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            ServiceFlow_Payments::table_name(),
+            [
+                'status'            => 'paid',
+                'stripe_session_id' => $session->id,
+                'paid_at'           => current_time( 'mysql' ),
+            ],
+            [ 'id' => $schedule_id ]
+        );
 
         // Créer la facture partielle
         if ( class_exists( 'ServiceFlow_Invoices' ) ) {
@@ -622,6 +627,7 @@ class ServiceFlow_Stripe {
 
         // Maintenance mensuelle
         if ( $maintenance_price > 0 ) {
+            /* translators: %s: formatted monthly maintenance price */
             $lines[] = "\xF0\x9F\x94\xA7 " . sprintf(
                 __( 'Maintenance : %s / mois', 'serviceflow' ),
                 number_format( $maintenance_price, 2, ',', ' ' ) . " \xE2\x82\xAC"
@@ -634,6 +640,7 @@ class ServiceFlow_Stripe {
             $lines[] = "\xE2\x9C\x85 " . __( 'Payé par Stripe', 'serviceflow' );
         } elseif ( $payment_mode === 'monthly' ) {
             $n_months = $upfront_paid > 0 ? (int) round( $total_price / $upfront_paid ) : 1;
+            /* translators: %s: formatted monthly fee */
             $lines[] = "\xF0\x9F\x92\xB0 " . sprintf( __( 'Tarif mensuel : %s', 'serviceflow' ), number_format( $upfront_paid, 2, ',', ' ' ) . " \xE2\x82\xAC" );
             /* translators: %1$d: number of months, %2$s: total price */
             $lines[] = "\xF0\x9F\x93\x85 " . sprintf( __( 'Durée : %1$d mois (total : %2$s)', 'serviceflow' ), $n_months, number_format( $total_price, 2, ',', ' ' ) . " \xE2\x82\xAC" );
@@ -669,6 +676,7 @@ class ServiceFlow_Stripe {
         // Éviter le double traitement si le webhook a déjà agi
         global $wpdb;
         $table  = ServiceFlow_Orders::table_name();
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $table is a plugin-defined constant.
         $exists = $wpdb->get_var( $wpdb->prepare(
             "SELECT id FROM {$table} WHERE stripe_session_id = %s LIMIT 1",
             $session_id
@@ -710,6 +718,7 @@ class ServiceFlow_Stripe {
         $table  = ServiceFlow_Orders::table_name();
 
         // Idempotence
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $table is a plugin-defined constant.
         $exists = $wpdb->get_var( $wpdb->prepare(
             "SELECT id FROM {$table} WHERE stripe_session_id = %s LIMIT 1",
             $session->id

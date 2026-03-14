@@ -108,26 +108,26 @@ class ServiceFlow_Options {
             <p class="serviceflow-section-desc"><?php esc_html_e( 'Le client en choisit un seul. Ajoutez au moins un pack.', 'serviceflow' ); ?></p>
             <div id="serviceflow-packs-list">
                 <?php foreach ( $packs as $i => $pack ) : ?>
-                    <div class="serviceflow-pack-item" data-index="<?php echo $i; ?>">
+                    <div class="serviceflow-pack-item" data-index="<?php echo absint( $i ); ?>">
                         <button type="button" class="serviceflow-pack-remove"><?php esc_html_e( 'Supprimer', 'serviceflow' ); ?></button>
                         <div class="serviceflow-meta-row">
                             <div class="serviceflow-field">
                                 <label><?php esc_html_e( 'Nom', 'serviceflow' ); ?></label>
-                                <input type="text" name="serviceflow_packs[<?php echo $i; ?>][name]" value="<?php echo esc_attr( $pack['name'] ?? '' ); ?>" placeholder="<?php esc_attr_e( 'Ex: Pack Basique', 'serviceflow' ); ?>" />
+                                <input type="text" name="serviceflow_packs[<?php echo absint( $i ); ?>][name]" value="<?php echo esc_attr( $pack['name'] ?? '' ); ?>" placeholder="<?php esc_attr_e( 'Ex: Pack Basique', 'serviceflow' ); ?>" />
                             </div>
                             <div class="serviceflow-field-price">
                                 <label><?php esc_html_e( 'Prix (€)', 'serviceflow' ); ?></label>
-                                <input type="number" name="serviceflow_packs[<?php echo $i; ?>][price]" value="<?php echo esc_attr( $pack['price'] ?? '' ); ?>" min="0" step="0.01" />
+                                <input type="number" name="serviceflow_packs[<?php echo absint( $i ); ?>][price]" value="<?php echo esc_attr( $pack['price'] ?? '' ); ?>" min="0" step="0.01" />
                             </div>
                             <div class="serviceflow-field-price">
                                 <label><?php esc_html_e( 'Délai (jours)', 'serviceflow' ); ?></label>
-                                <input type="number" name="serviceflow_packs[<?php echo $i; ?>][delay]" value="<?php echo esc_attr( $pack['delay'] ?? '' ); ?>" min="0" step="1" />
+                                <input type="number" name="serviceflow_packs[<?php echo absint( $i ); ?>][delay]" value="<?php echo esc_attr( $pack['delay'] ?? '' ); ?>" min="0" step="1" />
                             </div>
                         </div>
                         <div class="serviceflow-meta-row">
                             <div class="serviceflow-field">
                                 <label><?php esc_html_e( 'Description (infobulle)', 'serviceflow' ); ?></label>
-                                <input type="text" name="serviceflow_packs[<?php echo $i; ?>][description]" value="<?php echo esc_attr( $pack['description'] ?? '' ); ?>" placeholder="<?php esc_attr_e( 'Texte affiché au survol de l\'icône info', 'serviceflow' ); ?>" />
+                                <input type="text" name="serviceflow_packs[<?php echo absint( $i ); ?>][description]" value="<?php echo esc_attr( $pack['description'] ?? '' ); ?>" placeholder="<?php esc_attr_e( 'Texte affiché au survol de l\'icône info', 'serviceflow' ); ?>" />
                             </div>
                         </div>
                         <div class="serviceflow-features-section">
@@ -138,13 +138,13 @@ class ServiceFlow_Options {
                                 if ( is_array( $features ) ) :
                                     foreach ( $features as $fi => $feat ) : ?>
                                         <div class="serviceflow-feature-item">
-                                            <input type="text" name="serviceflow_packs[<?php echo $i; ?>][features][]" value="<?php echo esc_attr( $feat ); ?>" placeholder="<?php esc_attr_e( 'Ex: 5 pages incluses', 'serviceflow' ); ?>" />
+                                            <input type="text" name="serviceflow_packs[<?php echo absint( $i ); ?>][features][]" value="<?php echo esc_attr( $feat ); ?>" placeholder="<?php esc_attr_e( 'Ex: 5 pages incluses', 'serviceflow' ); ?>" />
                                             <button type="button" class="serviceflow-feature-rm">&times;</button>
                                         </div>
                                     <?php endforeach;
                                 endif; ?>
                             </div>
-                            <button type="button" class="serviceflow-add-feature" data-pack-index="<?php echo $i; ?>">+ <?php esc_html_e( 'Ajouter une caractéristique', 'serviceflow' ); ?></button>
+                            <button type="button" class="serviceflow-add-feature" data-pack-index="<?php echo absint( $i ); ?>">+ <?php esc_html_e( 'Ajouter une caractéristique', 'serviceflow' ); ?></button>
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -235,26 +235,26 @@ class ServiceFlow_Options {
             <p class="serviceflow-section-desc"><?php esc_html_e( 'Cumulables avec le pack choisi.', 'serviceflow' ); ?></p>
             <div id="serviceflow-options-list">
                 <?php foreach ( $options as $i => $opt ) : ?>
-                    <div class="serviceflow-option-item" data-index="<?php echo $i; ?>">
+                    <div class="serviceflow-option-item" data-index="<?php echo absint( $i ); ?>">
                         <button type="button" class="serviceflow-option-remove"><?php esc_html_e( 'Supprimer', 'serviceflow' ); ?></button>
                         <div class="serviceflow-meta-row">
                             <div class="serviceflow-field">
                                 <label><?php esc_html_e( 'Nom', 'serviceflow' ); ?></label>
-                                <input type="text" name="serviceflow_opts[<?php echo $i; ?>][name]" value="<?php echo esc_attr( $opt['name'] ?? '' ); ?>" />
+                                <input type="text" name="serviceflow_opts[<?php echo absint( $i ); ?>][name]" value="<?php echo esc_attr( $opt['name'] ?? '' ); ?>" />
                             </div>
                             <div class="serviceflow-field-price">
                                 <label><?php esc_html_e( 'Prix (€)', 'serviceflow' ); ?></label>
-                                <input type="number" name="serviceflow_opts[<?php echo $i; ?>][price]" value="<?php echo esc_attr( $opt['price'] ?? '' ); ?>" min="0" step="0.01" />
+                                <input type="number" name="serviceflow_opts[<?php echo absint( $i ); ?>][price]" value="<?php echo esc_attr( $opt['price'] ?? '' ); ?>" min="0" step="0.01" />
                             </div>
                             <div class="serviceflow-field-price">
                                 <label><?php esc_html_e( 'Délai (jours)', 'serviceflow' ); ?></label>
-                                <input type="number" name="serviceflow_opts[<?php echo $i; ?>][delay]" value="<?php echo esc_attr( $opt['delay'] ?? '' ); ?>" min="0" step="1" />
+                                <input type="number" name="serviceflow_opts[<?php echo absint( $i ); ?>][delay]" value="<?php echo esc_attr( $opt['delay'] ?? '' ); ?>" min="0" step="1" />
                             </div>
                         </div>
                         <div class="serviceflow-meta-row">
                             <div class="serviceflow-field">
                                 <label><?php esc_html_e( 'Description', 'serviceflow' ); ?></label>
-                                <input type="text" name="serviceflow_opts[<?php echo $i; ?>][description]" value="<?php echo esc_attr( $opt['description'] ?? '' ); ?>" />
+                                <input type="text" name="serviceflow_opts[<?php echo absint( $i ); ?>][description]" value="<?php echo esc_attr( $opt['description'] ?? '' ); ?>" />
                             </div>
                         </div>
                     </div>
@@ -349,7 +349,7 @@ class ServiceFlow_Options {
         if ( ! isset( $_POST['serviceflow_options_nonce'] ) ) {
             return;
         }
-        if ( ! wp_verify_nonce( wp_unslash( $_POST['serviceflow_options_nonce'] ), 'serviceflow_options_save' ) ) {
+        if ( ! wp_verify_nonce( wp_unslash( $_POST['serviceflow_options_nonce'] ), 'serviceflow_options_save' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
             return;
         }
         if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
@@ -371,7 +371,7 @@ class ServiceFlow_Options {
         }
 
         // Packs
-        $packs_raw = wp_unslash( $_POST['serviceflow_packs'] ?? [] );
+        $packs_raw = wp_unslash( $_POST['serviceflow_packs'] ?? [] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Each field is sanitized individually in the loop below.
         $packs = [];
         if ( is_array( $packs_raw ) ) {
             foreach ( $packs_raw as $pack ) {
@@ -395,7 +395,7 @@ class ServiceFlow_Options {
         update_post_meta( $post_id, '_serviceflow_packs', $packs );
 
         // Options supplémentaires
-        $opts_raw = wp_unslash( $_POST['serviceflow_opts'] ?? [] );
+        $opts_raw = wp_unslash( $_POST['serviceflow_opts'] ?? [] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Each field is sanitized individually in the loop below.
         $opts = [];
         if ( is_array( $opts_raw ) ) {
             foreach ( $opts_raw as $opt ) {

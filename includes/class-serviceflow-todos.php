@@ -86,7 +86,7 @@ class ServiceFlow_Todos {
             if ( empty( $feat ) ) {
                 continue;
             }
-            $wpdb->insert( $table, [
+            $wpdb->insert( $table, [ // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
                 'order_id' => $order_id,
                 'label'    => sanitize_text_field( $feat ),
                 'source'   => 'feature',
@@ -102,7 +102,7 @@ class ServiceFlow_Todos {
                 if ( empty( $name ) ) {
                     continue;
                 }
-                $wpdb->insert( $table, [
+                $wpdb->insert( $table, [ // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
                     'order_id' => $order_id,
                     'label'    => sanitize_text_field( $name ),
                     'source'   => 'option',
@@ -119,6 +119,7 @@ class ServiceFlow_Todos {
     public static function get_todos_for_order( int $order_id ): array {
         global $wpdb;
         $table = self::table_name();
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- $table is a plugin-defined constant.
         return $wpdb->get_results( $wpdb->prepare(
             "SELECT * FROM {$table} WHERE order_id = %d ORDER BY position ASC",
             $order_id
@@ -128,6 +129,7 @@ class ServiceFlow_Todos {
     public static function get_todo( int $todo_id ): ?object {
         global $wpdb;
         $table = self::table_name();
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- $table is a plugin-defined constant.
         return $wpdb->get_row( $wpdb->prepare(
             "SELECT * FROM {$table} WHERE id = %d",
             $todo_id
@@ -144,7 +146,7 @@ class ServiceFlow_Todos {
             'admin_note'   => $completed && ! empty( $note ) ? $note : null,
         ];
 
-        return (bool) $wpdb->update( $table, $data, [ 'id' => $todo_id ] );
+        return (bool) $wpdb->update( $table, $data, [ 'id' => $todo_id ] ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
     }
 
     /* ================================================================
@@ -210,7 +212,7 @@ class ServiceFlow_Todos {
 
         $todo_id   = absint( $_POST['todo_id'] ?? 0 );
         $order_id  = absint( $_POST['order_id'] ?? 0 );
-        $completed = (bool) wp_unslash( $_POST['completed'] ?? false );
+        $completed = (bool) absint( wp_unslash( $_POST['completed'] ?? 0 ) );
         $note      = sanitize_textarea_field( wp_unslash( $_POST['note'] ?? '' ) );
 
         if ( ! $todo_id || ! $order_id ) {
@@ -229,10 +231,13 @@ class ServiceFlow_Todos {
 
             if ( $todo && $order ) {
                 $progress = self::get_progress( $order_id );
+                /* translators: %1$d: order ID, %2$s: section label */
                 $msg  = sprintf( "--- #CMD-%d %s ---\n", $order_id, __( 'Étape terminée', 'serviceflow' ) );
+                /* translators: %s: todo item label */
                 $msg .= sprintf( __( '✅ « %s » complétée.', 'serviceflow' ), $todo->label );
 
                 if ( ! empty( $note ) ) {
+                    /* translators: %s: admin note text */
                     $msg .= "\n" . sprintf( __( '📝 Note : %s', 'serviceflow' ), $note );
                 }
 

@@ -90,12 +90,12 @@ class ServiceFlow_Orders {
         // Seule une commande « en attente » peut être modifiée (mise à jour).
         // Les autres statuts (accepted, etc.) entraînent une nouvelle commande.
         if ( $existing && $existing->status === self::STATUS_PENDING ) {
-            $wpdb->update( $table, $data, [ 'id' => $existing->id ] );
+            $wpdb->update( $table, $data, [ 'id' => $existing->id ] ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
             return (int) $existing->id;
         }
 
         $data['created_at'] = current_time( 'mysql' );
-        $inserted = $wpdb->insert( $table, $data );
+        $inserted = $wpdb->insert( $table, $data ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 
         return $inserted ? (int) $wpdb->insert_id : false;
     }
@@ -127,12 +127,12 @@ class ServiceFlow_Orders {
         ];
 
         if ( $existing && $existing->status === self::STATUS_PENDING ) {
-            $wpdb->update( $table, $data, [ 'id' => $existing->id ] );
+            $wpdb->update( $table, $data, [ 'id' => $existing->id ] ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
             return (int) $existing->id;
         }
 
         $data['created_at'] = current_time( 'mysql' );
-        $inserted = $wpdb->insert( $table, $data );
+        $inserted = $wpdb->insert( $table, $data ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 
         return $inserted ? (int) $wpdb->insert_id : false;
     }
@@ -144,7 +144,7 @@ class ServiceFlow_Orders {
         global $wpdb;
 
         $table = self::table_name();
-        $row   = $wpdb->get_row( $wpdb->prepare(
+        $row   = $wpdb->get_row( $wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
             "SELECT o.*, u.display_name AS client_name
              FROM {$table} o
              LEFT JOIN {$wpdb->users} u ON o.client_id = u.ID
@@ -162,7 +162,7 @@ class ServiceFlow_Orders {
         global $wpdb;
 
         $table = self::table_name();
-        $row   = $wpdb->get_row( $wpdb->prepare(
+        $row   = $wpdb->get_row( $wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
             "SELECT o.*, u.display_name AS client_name
              FROM {$table} o
              LEFT JOIN {$wpdb->users} u ON o.client_id = u.ID
@@ -189,7 +189,7 @@ class ServiceFlow_Orders {
         global $wpdb;
 
         $table = self::table_name();
-        return $wpdb->get_results( $wpdb->prepare(
+        return $wpdb->get_results( $wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
             "SELECT o.*, u.display_name AS client_name
              FROM {$table} o
              LEFT JOIN {$wpdb->users} u ON o.client_id = u.ID
@@ -205,7 +205,7 @@ class ServiceFlow_Orders {
     public static function get_all_orders(): array {
         global $wpdb;
         $table = self::table_name();
-        return $wpdb->get_results(
+        return $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
             "SELECT o.*, p.post_title AS service_name
              FROM {$table} o
              LEFT JOIN {$wpdb->posts} p ON o.post_id = p.ID
@@ -220,7 +220,7 @@ class ServiceFlow_Orders {
         global $wpdb;
 
         $table = self::table_name();
-        $sql   = $wpdb->prepare(
+        $sql   = $wpdb->prepare( // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
             "SELECT o.*, p.post_title AS service_name
              FROM {$table} o
              LEFT JOIN {$wpdb->posts} p ON o.post_id = p.ID
@@ -235,7 +235,7 @@ class ServiceFlow_Orders {
 
         $sql .= ' ORDER BY o.created_at DESC';
 
-        return $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Query built with wpdb::prepare() above.
+        return $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Query built with wpdb::prepare() above.
     }
 
     /**
@@ -247,7 +247,7 @@ class ServiceFlow_Orders {
         $msg_table   = ServiceFlow_DB::table_name();
         $order_table = self::table_name();
 
-        $sql = $wpdb->prepare(
+        $sql = $wpdb->prepare( // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
             "SELECT DISTINCT u.ID AS client_id, u.display_name, u.user_email
              FROM {$wpdb->users} u
              WHERE u.ID IN (
@@ -262,7 +262,7 @@ class ServiceFlow_Orders {
             $post_id
         );
 
-        $results = $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Query built with wpdb::prepare() above.
+        $results = $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Query built with wpdb::prepare() above.
 
         // Exclure les administrateurs
         return array_values( array_filter( $results, function ( $user ) {
@@ -309,7 +309,7 @@ class ServiceFlow_Orders {
             }
         }
 
-        $wpdb->update( $table, $update_data, [ 'id' => $order_id ] );
+        $wpdb->update( $table, $update_data, [ 'id' => $order_id ] ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
         // Recharger pour avoir estimated_date à jour
         $order = self::get_order( $order_id );
@@ -365,6 +365,7 @@ class ServiceFlow_Orders {
                     "--- %s %s ---\n%s",
                     $order_num,
                     __( 'Paiement reçu', 'serviceflow' ),
+                    /* translators: %s: payment amount with currency symbol */
                     sprintf(
                         __( 'Le paiement de %s a été reçu via Stripe. Commande confirmée.', 'serviceflow' ),
                         number_format( (float) $order->total_price, 2, ',', ' ' ) . ' €'
@@ -379,7 +380,7 @@ class ServiceFlow_Orders {
                 if ( isset( $date ) && $order->total_delay > 0 ) {
                     /* translators: %1$d: number of days, %2$s: estimated delivery date */
                     $delay_info = sprintf(
-                        __( "Délai total : %1$d jour(s)\nLivraison estimée : %2$s", 'serviceflow' ),
+                        __( "Délai total : %1\$d jour(s)\nLivraison estimée : %2\$s", 'serviceflow' ),
                         (int) $order->total_delay,
                         $date
                     );
@@ -393,6 +394,7 @@ class ServiceFlow_Orders {
                         "--- %s %s ---\n%s",
                         $order_num,
                         __( 'Retouche validée', 'serviceflow' ),
+                        /* translators: %s: actor display name */
                         sprintf( __( '%s a validé la retouche et repris la commande.', 'serviceflow' ), $actor_name )
                     ) . ( $delay_info ? "\n" . $delay_info : '' );
                 }
@@ -416,6 +418,7 @@ class ServiceFlow_Orders {
                     }
 
                     if ( $payment_mode === 'single' ) {
+                        /* translators: %s: payment amount with currency symbol */
                         $payment_line = sprintf(
                             __( 'Le paiement de %s a été reçu via Stripe. Commande démarrée.', 'serviceflow' ),
                             number_format( $upfront, 2, ',', ' ' ) . ' €'
@@ -442,6 +445,7 @@ class ServiceFlow_Orders {
                             $label,
                             number_format( $upfront, 2, ',', ' ' ) . ' €'
                         ) . "\n" . sprintf(
+                            /* translators: %s: total contract amount with currency symbol */
                             __( 'Total du contrat : %s', 'serviceflow' ),
                             number_format( $total, 2, ',', ' ' ) . ' €'
                         );
@@ -459,6 +463,7 @@ class ServiceFlow_Orders {
                     "--- %s %s ---\n%s",
                     $order_num,
                     __( 'Commande démarrée', 'serviceflow' ),
+                    /* translators: %s: actor display name */
                     sprintf( __( '%s a démarré la commande.', 'serviceflow' ), $actor_name )
                 ) . ( $delay_info ? "\n" . $delay_info : '' );
 
@@ -467,6 +472,7 @@ class ServiceFlow_Orders {
                     "--- %s %s ---\n%s",
                     $order_num,
                     __( 'Commande terminée', 'serviceflow' ),
+                    /* translators: %s: actor display name */
                     sprintf( __( '%s a marqué la commande comme terminée.', 'serviceflow' ), $actor_name )
                 );
 
@@ -475,6 +481,7 @@ class ServiceFlow_Orders {
                     "--- %s %s ---\n%s",
                     $order_num,
                     __( 'Retouche demandée', 'serviceflow' ),
+                    /* translators: %s: actor display name */
                     sprintf( __( '%s a demandé une retouche.', 'serviceflow' ), $actor_name )
                 );
 
@@ -483,6 +490,7 @@ class ServiceFlow_Orders {
                     "--- %s %s ---\n%s",
                     $order_num,
                     __( 'Livraison acceptée', 'serviceflow' ),
+                    /* translators: %s: actor display name */
                     sprintf( __( '%s a accepté la livraison. Commande terminée.', 'serviceflow' ), $actor_name )
                 );
 
@@ -513,7 +521,7 @@ class ServiceFlow_Orders {
 
         $post_id           = absint( $_POST['post_id'] ?? 0 );
         $selected_pack_idx = absint( $_POST['selected_pack'] ?? 0 );
-        $selected_indices  = json_decode( wp_unslash( $_POST['selected_indices'] ?? '[]' ), true );
+        $selected_indices  = json_decode( wp_unslash( $_POST['selected_indices'] ?? '[]' ), true ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- JSON-decoded array; individual elements are sanitized at point of use.
         $extra_pages       = absint( $_POST['extra_pages'] ?? 0 );
         $maintenance       = absint( $_POST['maintenance'] ?? 0 );
 

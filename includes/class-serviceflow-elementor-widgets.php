@@ -93,7 +93,8 @@ abstract class ServiceFlow_Widget_Base extends \Elementor\Widget_Base {
         $tag = $this->get_settings_for_display( 'html_tag' ) ?: 'span';
         $allowed = [ 'span', 'p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6' ];
         $tag = in_array( $tag, $allowed, true ) ? $tag : 'span';
-        echo '<' . $tag . ' class="sf-widget-text">' . $content . '</' . $tag . '>';
+        $safe_tag = esc_attr( $tag );
+        echo '<' . $safe_tag . ' class="sf-widget-text">' . wp_kses_post( $content ) . '</' . $safe_tag . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $tag is validated against an allowlist above; $content is processed by Elementor's get_settings_for_display().
     }
 }
 

@@ -50,7 +50,7 @@ class ServiceFlow_DB {
     public static function insert_message( int $post_id, int $user_id, string $message, int $client_id = 0 ): int|false {
         global $wpdb;
 
-        $result = $wpdb->insert(
+        $result = $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             self::table_name(),
             [
                 'post_id'   => $post_id,
@@ -160,14 +160,14 @@ class ServiceFlow_DB {
         $admin_ids = get_users( [ 'role' => 'administrator', 'fields' => 'ID' ] );
         if ( ! empty( $admin_ids ) ) {
             $admin_ids_str = implode( ',', array_map( 'absint', $admin_ids ) );
-            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery -- $admin_ids_str is a list of absint-sanitized IDs; IN() lists cannot use wpdb::prepare().
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- $admin_ids_str is a list of absint-sanitized IDs; IN() lists cannot use wpdb::prepare().
             $wpdb->query(
                 "UPDATE {$table} SET client_id = user_id
                  WHERE client_id = 0 AND user_id > 0 AND user_id NOT IN ({$admin_ids_str})"
             );
         } else {
             // Pas d'admin trouvé : tous les user_id > 0 sont des clients
-            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery -- Static query, no user input.
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Static query, no user input.
             $wpdb->query(
                 "UPDATE {$table} SET client_id = user_id WHERE client_id = 0 AND user_id > 0"
             );
@@ -188,7 +188,7 @@ class ServiceFlow_DB {
             ) );
 
             if ( $client ) {
-                $wpdb->update(
+                $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                     $table,
                     [ 'client_id' => (int) $client ],
                     [ 'post_id' => (int) $pid, 'client_id' => 0 ]
